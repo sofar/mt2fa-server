@@ -1,0 +1,11 @@
+<html>
+  <head>
+    <title>MT2FA 2-Factor Authentication - Confirmation</title>
+    <link rel="stylesheet" href="beauty.min.css" />
+  </head>
+  <body>
+    <h3>Your request results:</h3>
+    <pre><div id="c">Javascript is required for this webpage to function.</div></pre>
+    <script src="/confirm.js"></script>
+  </body>
+</html>
