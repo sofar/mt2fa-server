@@ -150,6 +150,13 @@ func (s FastCGIServer) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 	remoteip := net.ParseIP(ip).String()
 
+	if req.Method != "POST" {
+		w.Header().Set("Access-Control-Allow-Headers", "SHOO")
+		http.Error(w, err.Error(), http.StatusMethodNotAllowed)
+		log.Printf("Invalid GET from %v\n", remoteip)
+		return
+	}
+
 	// parse POST data
 	body, err := ioutil.ReadAll(req.Body)
 	defer req.Body.Close()
