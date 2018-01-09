@@ -12,12 +12,21 @@ import (
 	"gopkg.in/gomail.v2"
 	"io/ioutil"
 	"log"
+	"fmt"
 	"net"
 	"net/http"
 	"net/http/fcgi"
 	"os"
 	"time"
 )
+
+// Change our logging to be journalctl friendly
+type logWriter struct {
+}
+
+func (writer logWriter) Write(bytes []byte) (int, error) {
+	return fmt.Print(string(bytes))
+}
 
 // DB related stuff
 var db *sql.DB
@@ -736,7 +745,9 @@ send_response:
 }
 
 func main() {
+	// Custom log format
 	log.SetFlags(0)
+	log.SetOutput(new(logWriter))
 
 	// config stuffs
 	viper.SetConfigName("mt2fa")
@@ -766,7 +777,7 @@ func main() {
 
 	listener, err := net.Listen("unix", s)
 	if err != nil {
-		log.Fatal("mt2fa: net.Listen: ", err)
+		log.Fatal("net.Listen: ", err)
 	}
 
 	os.Chmod(s, 0666)
@@ -821,7 +832,7 @@ func main() {
 	// serve requests.
 	h := new(FastCGIServer)
 
-	log.Print("mt2fa: started")
+	log.Print("started")
 
 	err = fcgi.Serve(listener, h)
 }
