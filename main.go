@@ -136,9 +136,17 @@ func do_email(email string, message string) bool {
 	m.SetBody("text/plain", message)
 
 	d := gomail.Dialer{Host: viper.GetString("smtp_server"), Port: viper.GetInt("smtp_port")}
+
+	user := viper.GetString("smtp_user")
+	if user != "" {
+		d.Username = user
+		d.Password = viper.GetString("smtp_pass")
+	}
+
 	if viper.GetBool("smtp_verify_certificate") == false {
 		d.TLSConfig = &tls.Config{InsecureSkipVerify: true}
 	}
+
 	if err := d.DialAndSend(m); err != nil {
 		log.Println(err)
 		return false
@@ -763,6 +771,7 @@ func main() {
 	viper.SetDefault("smtp_server", "localhost")
 	viper.SetDefault("smtp_port", 587)
 	viper.SetDefault("smtp_verify_certificate", true)
+	viper.SetDefault("smtp_user", "")
 	viper.SetDefault("sqlite_db", "mt2fa.sqlite")
 	viper.SetDefault("base_url", "https://localhost/")
 
