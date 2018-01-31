@@ -31,6 +31,7 @@ func (writer logWriter) Write(bytes []byte) (int, error) {
 // DB related stuff
 var db *sql.DB
 
+var pruned int64
 type Token struct {
 	token     string
 	cookie    string
@@ -749,7 +750,17 @@ send_response:
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(output)
 
-	//FIXME prune tokens
+	// prune tokens occasionally
+	if time.Now().Unix() > pruned + 900 {
+		pruned = time.Now().Unix()
+		cull := time.Now().Unix() - 86400
+
+		_, err = db.Exec("DELETE FROM tokens WHERE expired <= ?", cull)
+		if err != nil {
+			log.Println("Failed to prune tokens.")
+		}
+	}
+
 }
 
 func main() {
